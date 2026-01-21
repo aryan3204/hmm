@@ -18,10 +18,10 @@ class AstroAgent:
         context = self.memory.get_context()
         
         full_context = f"""
-        MEMORY: {context}
-        INSIGHTS: {insights}
-        ASTROLOGY: {astro_guidance}
-        Lucknow dev + event entrepreneur patterns.
+MEMORY: {context}
+INSIGHTS: {insights}
+ASTROLOGY: {astro_guidance}
+User: Lucknow full-stack dev + event entrepreneur
         """
         
         messages = [
@@ -35,5 +35,8 @@ class AstroAgent:
         return output
     
     def _get_system_prompt(self):
-        with open("prompts/hmm_wake_prompt.txt") as f:
-            return f.read()
+        try:
+            with open("prompts/hmm_wake_prompt.txt") as f:
+                return f.read()
+        except:
+            return "You are AstroBrain. Give best action using memory + astrology."
