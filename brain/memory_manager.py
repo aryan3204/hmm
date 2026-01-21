@@ -20,10 +20,16 @@ class MemoryManager:
             json.dump(self.history, f, indent=2)
     
     def add_interaction(self, user_input, agent_output):
-        self.history.append({"time": datetime.now().isoformat(), "user": user_input, "agent": agent_output})
-        self.history = self.history[-100:]
+        self.history.append({
+            "time": datetime.now().isoformat(), 
+            "user": user_input, 
+            "agent": agent_output
+        })
+        self.history = self.history[-100:]  # Keep recent 100
         self._save()
     
     def get_context(self):
         recent = self.history[-5:]
-        return "\n".join([f"Q: {h['user']} → A: {h['agent']}" for h in recent]) if recent else "No history"
+        if recent:
+            return "\n".join([f"Q: {h['user']} → A: {h['agent']}" for h in recent])
+        return "No previous conversations"
