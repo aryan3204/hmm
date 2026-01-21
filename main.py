@@ -1,54 +1,29 @@
-import os
-import pvporcupine
-import pvrecorder
-import struct
-import speech_recognition as sr
 from dotenv import load_dotenv
+import os
 from brain.agent_core import AstroAgent
 
 load_dotenv()
 agent = AstroAgent()
 
-# Wake word "hmm" detector
-porcupine = pvporcupine.create(
-    keywords=["hmm"],
-    access_key=os.getenv("PORCUPINE_API_KEY")
-)
+print("🤖 AstroBrain awake! Type 'hmm + your question' to activate")
+print("Type 'quit' to exit\n")
 
-recognizer = sr.Recognizer()
-mic = sr.Microphone()
-
-print("🤖 hmm agent awake. Say 'hmm' to activate...")
-
-try:
-    with mic as source:
-        recognizer.adjust_for_ambient_noise(source)
+while True:
+    command = input("You: ").strip().lower()
     
-    while True:
-        # Listen for "hmm"
-        pa = pvrecorder.PvRecorder(device_index=-1, frame_length=porcupine.frame_length)
-        pa.start()
-        
-        while True:
-            pcm = pa.read()
-            keyword_index = porcupine.process(struct.unpack_from("h" * porcupine.frame_length, pcm))
-            if keyword_index >= 0:
-                print("🔥 WAKE WORD 'hmm' DETECTED!")
-                pa.stop()
-                break
-        
-        # Speech-to-text after wake word
-        with mic as source:
-            audio = recognizer.listen(source, timeout=5)
-        
-        try:
-            command = recognizer.recognize_google(audio).lower()
-            print(f"🗣️  You said: {command}")
-            response = agent.process(command)
-            print(f"🧠 AstroBrain: {response}")
-        except sr.UnknownValueError:
-            print("❓ Didn't catch that...")
-        
-finally:
-    pa.stop()
-    porcupine.delete()
+    if command == "quit":
+        print("👋 AstroBrain offline")
+        break
+    
+    if command.startswith("hmm"):
+        # Extract command after "hmm"
+        query = command[3:].strip()
+        if query:
+            print("🔥 ASTROBRAIN ACTIVATED!")
+            print(f"🧠 Processing: {query}")
+            response = agent.process(query)
+            print(f"🌌 AstroBrain: {response}\n")
+        else:
+            print("❓ Say 'hmm should I code now' etc.\n")
+    else:
+        print("💤 Say 'hmm' first to wake me up!\n")
